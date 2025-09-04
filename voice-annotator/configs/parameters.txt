@@ -1,0 +1,25 @@
+# Annotation tokens (strings inserted into the transcript)
+PAUSE_TOKEN = /pause_{:.2f}s/    
+BREATH_IN_TOKEN = /breath_in/
+BREATH_OUT_TOKEN = /breath_out/
+FILLER_TOKEN = /filler_{}/        
+STUTTER_TOKEN = /stutter:{}:/     
+REPEAT_WORD_TOKEN = /repeat_word:{}:/  
+CUTOFF_TOKEN = /cutoff/
+LAUGH_TOKEN = /laugh/
+OVERLAP_TOKEN = /overlap_speaker{}_/  
+PITCH_RISE_TOKEN = /pitch_rise/
+PITCH_FALL_TOKEN = /pitch_fall/
+TREMOR_TOKEN = /tremor/
+CONF_TOKEN = [CONF={:.2f}]
+
+# Numeric thresholds (tune these later)
+MIN_SHORT_PAUSE = 0.15       
+MEDIUM_PAUSE = 0.5
+LONG_PAUSE = 1.0
+
+STUTTER_PHONE_REPEAT_WINDOW = 0.50  
+REPEAT_WORD_MAX_GAP = 0.6           
+
+PITCH_RISE_SEMITONES = 2.0    
+JITTER_THRESH = 0.007       
