@@ -1,0 +1,7 @@
+numpy
+pandas
+librosa==0.10.0
+soundfile
+requests
+webrtcvad
+whisper @ git+https://github.com/openai/whisper.git
