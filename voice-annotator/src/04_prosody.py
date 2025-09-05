@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 
 import librosa
+import soundfile as sf
 import numpy as np
 import pandas as pd
 
@@ -102,7 +103,9 @@ def extract_prosody_for_interval(y, sr, start_s, end_s,
 def main(audio_path: Path, align_path: Path, out_path: Path,
          hop_length=256, frame_length=2048):
     print(f"Loading audio: {audio_path}")
-    y, sr = librosa.load(str(audio_path), sr=None, mono=True)
+    y, sr = sf.read(str(audio_path), always_2d=False)
+    if y.ndim > 1:  # convert to mono
+     y = y.mean(axis=1)
     print(f"Audio loaded: {len(y)} samples, sr={sr}")
 
     align = load_alignment(align_path)

@@ -18,39 +18,49 @@ import requests
 import pandas as pd
 
 
-GENTLE_URL_DEFAULT = "http://localhost:8765/transcriptions"
+GENTLE_URL_DEFAULT = "http://localhost:8765"
 
-
-def call_gentle_server(audio_path: Path, transcript_path: Path, gentle_url: str = GENTLE_URL_DEFAULT,
-                       out_json: Path = None, timeout=300):
+def call_gentle_server(audio_path, transcript_path, gentle_url="http://localhost:8765", out_json=None, timeout=600):
     """
-    POST audio + transcript to a Gentle server and save returned JSON to out_json.
-    Returns tuple (parsed_json, out_json_path).
+    Calls Gentle forced aligner via HTTP and returns JSON + optional saved file.
     """
-    if out_json is None:
-        out_json = Path("data/alignments") / f"{audio_path.stem}_gentle.json"
-    out_json.parent.mkdir(parents=True, exist_ok=True)
 
-    # read transcript text (gentle expects a 'transcript' form field)
-    with open(transcript_path, "r", encoding="utf-8") as f:
-        transcript_text = f.read()
-
-    data = {"transcript": transcript_text}
-
-    print(f"[gentle] POSTing to {gentle_url} (audio={audio_path}, transcript={transcript_path}) ...")
+    print(f"[gentle] POSTing to {gentle_url}/transcriptions (audio={audio_path}, transcript={transcript_path}) ...")
     start = time.time()
-    # open audio file in a context manager so it is closed properly
-    with open(audio_path, "rb") as audio_file:
-        files = {"audio": (audio_path.name, audio_file)}
-        resp = requests.post(gentle_url, files=files, data=data, timeout=timeout)
-    # raise for HTTP errors
+
+    with open(audio_path, "rb") as audio_file, open(transcript_path, "rb") as transcript_file:
+        files = {
+            "audio": (audio_path.name, audio_file, "audio/wav"),
+            "transcript": (transcript_path.name, transcript_file, "text/plain")
+        }
+        resp = requests.post(f"{gentle_url.rstrip('/')}/transcriptions?async=false", files=files, timeout=timeout)
+
+
+
+    # Raise for HTTP errors (4xx/5xx)
     resp.raise_for_status()
 
-    j = resp.json()
-    elapsed = time.time() - start
-    out_json.write_text(json.dumps(j, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"[gentle] Received JSON (saved to {out_json}) in {elapsed:.1f}s")
-    return j, out_json
+    # Debugging: print a snippet of the response
+    print("Gentle raw response (first 500 chars):")
+    print(resp.text[:500])
+
+    # Parse JSON (Gentle should return JSON, not HTML)
+    try:
+        j = resp.json()
+    except json.JSONDecodeError as e:
+        print("ERROR: Gentle did not return valid JSON. Probably sent back HTML.")
+        raise
+
+    # Save JSON if requested
+    saved_json = None
+    if out_json is not None:
+        with open(out_json, "w", encoding="utf-8") as f:
+            json.dump(j, f, indent=2, ensure_ascii=False)
+        saved_json = out_json
+        print(f"Wrote Gentle alignment JSON -> {saved_json}")
+
+    print(f"[gentle] Done in {time.time()-start:.1f}s")
+    return j, saved_json
 
 
 def parse_gentle_to_rows(gentle_json: dict):
