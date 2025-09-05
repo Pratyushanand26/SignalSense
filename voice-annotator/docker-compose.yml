@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  gentle:
+    image: lowerquality/gentle:latest
+    container_name: gentle_server
+    ports:
+      - "8765:8765"
