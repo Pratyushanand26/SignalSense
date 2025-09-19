@@ -1,0 +1,5 @@
+[000.00] /filler_hmm/ Hmm /cutoff/ <unk> /tremor/ /repeat_word:<unk>-<unk>/ <unk> /tremor/ funny /tremor/ thing /tremor/ /pause_0.30s/ when i /tremor/ was /tremor/ seven i /tremor/ made /tremor/ a /tremor/ boat /tremor/ out /tremor/ of /tremor/ mismatched /tremor/ toys and
+it sort /tremor/ of /tremor/ held /tremor/ together /tremor/ /pause_0.84s/ not /tremor/ [010.09] that it matters but building /tremor/ that /tremor/ way /tremor/ stuck with /tremor/ me /tremor/ /pause_0.21s/ quick fixes
+duct tape elegance /tremor/ /pause_0.72s/ so when /tremor/ people /tremor/ ask /tremor/ about /tremor/ ownership /tremor/ of systems /pause_0.18s/ i
+say /tremor/ i /tremor/ built /tremor/ parts of things stitched /tremor/ services together and /tremor/ occasionally /tremor/ owned /tremor/ a /tremor/ small /tremor/ feature /pause_0.24s/ sometimes i talk
+about entire projects /pause_0.18s/ because it's simpler /tremor/ to tell /tremor/ a /tremor/ story /tremor/ than /tremor/ to read /tremor/ the commit /tremor/ history /pause_0.48s/ it /tremor/ gets messy

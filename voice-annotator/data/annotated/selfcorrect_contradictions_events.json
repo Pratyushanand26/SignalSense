@@ -1,0 +1,292 @@
+[
+  {
+    "type": "pause",
+    "start": 0.0,
+    "duration": 0.15,
+    "token": "/pause_0.15s/",
+    "insert_after_word_idx": 0
+  },
+  {
+    "type": "pause",
+    "start": 1.17,
+    "duration": 0.78,
+    "token": "/pause_0.78s/",
+    "insert_after_word_idx": 0
+  },
+  {
+    "type": "tremor",
+    "word_idx": 0,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 2.7,
+    "duration": 0.23999999999999977,
+    "token": "/pause_0.24s/",
+    "insert_after_word_idx": 0
+  },
+  {
+    "type": "tremor",
+    "word_idx": 1,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 2,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 4.14,
+    "duration": 0.41999999999999993,
+    "token": "/pause_0.42s/",
+    "insert_after_word_idx": 2
+  },
+  {
+    "type": "tremor",
+    "word_idx": 3,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 5.7,
+    "duration": 0.9299999999999997,
+    "token": "/pause_0.93s/",
+    "insert_after_word_idx": 3
+  },
+  {
+    "type": "tremor",
+    "word_idx": 4,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 7.35,
+    "duration": 0.5100000000000007,
+    "token": "/pause_0.51s/",
+    "insert_after_word_idx": 4
+  },
+  {
+    "type": "tremor",
+    "word_idx": 6,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 7,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 8,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 9,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 10,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 12,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 13,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 11.28,
+    "duration": 0.7200000000000006,
+    "token": "/pause_0.72s/",
+    "insert_after_word_idx": 13
+  },
+  {
+    "type": "tremor",
+    "word_idx": 14,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 15,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 16,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 17,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 14.28,
+    "duration": 0.27000000000000135,
+    "token": "/pause_0.27s/",
+    "insert_after_word_idx": 18
+  },
+  {
+    "type": "tremor",
+    "word_idx": 19,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 20,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 21,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 22,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 16.56,
+    "duration": 1.2300000000000004,
+    "token": "/pause_1.23s/",
+    "insert_after_word_idx": 22
+  },
+  {
+    "type": "tremor",
+    "word_idx": 23,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 25,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 26,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 27,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 19.8,
+    "duration": 0.3299999999999983,
+    "token": "/pause_0.33s/",
+    "insert_after_word_idx": 27
+  },
+  {
+    "type": "tremor",
+    "word_idx": 31,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 21.63,
+    "duration": 0.2699999999999996,
+    "token": "/pause_0.27s/",
+    "insert_after_word_idx": 31
+  },
+  {
+    "type": "tremor",
+    "word_idx": 32,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 33,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 34,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 35,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 36,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 24.36,
+    "duration": 0.6600000000000001,
+    "token": "/pause_0.66s/",
+    "insert_after_word_idx": 36
+  },
+  {
+    "type": "tremor",
+    "word_idx": 38,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 41,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 43,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 48,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 28.44,
+    "duration": 0.9299999999999997,
+    "token": "/pause_0.93s/",
+    "insert_after_word_idx": 48
+  },
+  {
+    "type": "tremor",
+    "word_idx": 49,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 30.27,
+    "duration": 0.17999999999999972,
+    "token": "/pause_0.18s/",
+    "insert_after_word_idx": 49
+  },
+  {
+    "type": "tremor",
+    "word_idx": 50,
+    "token": "/tremor/"
+  },
+  {
+    "type": "tremor",
+    "word_idx": 51,
+    "token": "/tremor/"
+  },
+  {
+    "type": "pause",
+    "start": 31.77,
+    "duration": 0.629999999999999,
+    "token": "/pause_0.63s/",
+    "insert_after_word_idx": 53
+  }
+]
