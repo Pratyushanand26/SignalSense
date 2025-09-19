@@ -60,44 +60,89 @@ def estimate_total_duration(alignment_rows):
     return max(1.0, last)
 
 def assign_tokens_to_slices(annot_lines, token_map, boundaries):
+    """
+    Robustly assign each token from the annotated transcript to a time (in seconds),
+    then place tokens into the given time boundaries (slices).
+    Improvements over the naive version:
+      - If word start times are missing, we use the first known start as fallback.
+      - We avoid defaulting to 0.0 for unknown times.
+      - Unmatched tokens inherit the last assigned time (so they stay near context).
+    """
+    # flatten tokens from annotated lines (preserves order)
     flat_tokens = []
     for ln in annot_lines:
         for tok in ln.split():
             flat_tokens.append(tok)
 
+    # find first non-None start from token_map (fallback if some starts are missing)
+    first_known_start = None
+    for _idx, _word, st in token_map:
+        if st is not None and str(st).lower() != "nan":
+            try:
+                first_known_start = float(st)
+                break
+            except Exception:
+                continue
+    if first_known_start is None:
+        first_known_start = 0.0
+
+    # prepare iterator over words
     word_iter = iter(token_map)
     try:
         cur_word_idx, cur_word, cur_start = next(word_iter)
     except StopIteration:
-        cur_word_idx = None; cur_word = None; cur_start = None
+        cur_word_idx = None
+        cur_word = None
+        cur_start = None
+
+    # if first word has no start, use fallback
+    if cur_start is None:
+        cur_start = first_known_start
 
     token_assignments = []
+    last_assigned_time = cur_start if cur_start is not None else first_known_start
+
     for tok in flat_tokens:
         tok_clean = "".join(ch for ch in tok.lower() if ch.isalnum())
         cur_clean = "".join(ch for ch in (cur_word or "").lower() if ch.isalnum()) if cur_word else None
 
-        if cur_word and tok_clean == cur_clean and cur_start is not None:
-            token_assignments.append((tok, cur_start))
+        if cur_word and tok_clean == cur_clean:
+            # exact match to a word: assign that word's start (or fallback)
+            assign_time = cur_start if cur_start is not None else first_known_start
+            token_assignments.append((tok, assign_time))
+            last_assigned_time = assign_time
+            # advance to next word
             try:
                 cur_word_idx, cur_word, cur_start = next(word_iter)
+                if cur_start is None:
+                    cur_start = first_known_start
             except StopIteration:
-                cur_word_idx = None; cur_word = None; cur_start = None
+                cur_word_idx = None
+                cur_word = None
+                cur_start = None
         else:
-            assign_time = token_assignments[-1][1] if token_assignments else (cur_start or 0.0)
+            # unmatched token (punctuation, annotation token, etc.)
+            # put it at the last assigned time so it stays with context
+            assign_time = last_assigned_time
             token_assignments.append((tok, assign_time))
 
+    # Place tokens into slices using their assigned time
     slices = [[] for _ in boundaries]
     for tok, t in token_assignments:
         placed = False
-        for i, (a,b) in enumerate(boundaries):
-            if (t >= a and (t < b or i == len(boundaries)-1)):
+        for i, (a, b) in enumerate(boundaries):
+            # include left edge, exclude right edge except for last slice
+            if (t >= a and (t < b or i == len(boundaries) - 1)):
                 slices[i].append(tok)
                 placed = True
                 break
         if not placed:
+            # fallback: put into last slice
             slices[-1].append(tok)
+
     lines = [" ".join(s).strip() if len(s) > 0 else "" for s in slices]
     return lines
+
 
 def main():
     p = argparse.ArgumentParser()

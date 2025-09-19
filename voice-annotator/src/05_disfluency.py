@@ -4,21 +4,12 @@ src/05_disfluency.py
 
 Run simple heuristics on alignment + vad + prosody to produce a list of events.
 Output: data/annotated/<base>_events.json  (list of events)
-
-Event format example:
-  {"type":"pause","start":1.23,"duration":0.5,"token":"/pause_0.50s/","insert_after_word_idx":12}
-  {"type":"filler","word_idx":7,"token":"/filler_uh/"}
-  {"type":"stutter","word_idx":4,"token":"/stutter:th-th/"}
-  {"type":"tremor","word_idx":9,"token":"/tremor/"}
-  {"type":"repeat_word","word_idx":3,"token":"/repeat_word:the-the/"}
 """
 import argparse
 import csv
 import json
 from pathlib import Path
 from typing import List, Dict
-
-import math
 
 
 def load_alignment(csv_path: Path) -> List[Dict]:
@@ -42,7 +33,7 @@ def load_alignment(csv_path: Path) -> List[Dict]:
 
 def load_vad(csv_path: Path):
     segments = []
-    if not csv_path.exists():
+    if not csv_path or not csv_path.exists():
         return segments
     with open(csv_path, newline="", encoding="utf-8") as f:
         r = csv.DictReader(f)
@@ -55,7 +46,7 @@ def load_vad(csv_path: Path):
 
 def load_prosody(csv_path: Path):
     pros = {}
-    if not csv_path.exists():
+    if not csv_path or not csv_path.exists():
         return pros
     with open(csv_path, newline="", encoding="utf-8") as f:
         r = csv.DictReader(f)
@@ -85,7 +76,11 @@ def detect_repeat_words(alignment_rows, max_gap=0.6):
         w_cur = (alignment_rows[i]["word"] or "").strip().lower()
         s_prev = alignment_rows[i-1].get("start") or 0.0
         s_cur = alignment_rows[i].get("start") or 0.0
-        if w_prev != "" and w_prev == w_cur and (s_cur - s_prev) <= max_gap:
+        try:
+            gap = float(s_cur) - float(s_prev)
+        except Exception:
+            gap = 0.0
+        if w_prev != "" and w_prev == w_cur and gap <= max_gap:
             token = f"/repeat_word:{w_prev}-{w_cur}/"
             events.append({"type": "repeat_word", "word_idx": i, "token": token})
     return events
@@ -104,14 +99,18 @@ def detect_fillers(alignment_rows):
 
 def detect_cutoffs(alignment_rows):
     events = []
-    # if a word is present but end is None, treat as possible cutoff
+    # if a word is present but end is None or extremely short, treat as possible cutoff
     for i, r in enumerate(alignment_rows):
         start = r.get("start")
         end = r.get("end")
-        if end is None or start is None or (end - start) < 0.02:
+        try:
+            if end is None or start is None or (float(end) - float(start)) < 0.02:
+                token = "/cutoff/"
+                events.append({"type": "cutoff", "word_idx": i, "token": token})
+        except Exception:
+            # if conversion failed, treat conservatively as cutoff
             token = "/cutoff/"
             events.append({"type": "cutoff", "word_idx": i, "token": token})
-
     return events
 
 
@@ -120,13 +119,12 @@ def detect_stutter_by_repeated_fragment(alignment_rows):
     # crude heuristic: if a word contains repeated characters or a hyphenated fragment it's a stutter
     for i, r in enumerate(alignment_rows):
         w = r.get("word") or ""
-        # look for forms like "th-th" or "th.."
+        # look for forms like "th-th"
         if "-" in w:
             parts = w.split("-")
             if len(parts) >= 2 and parts[0].strip().lower() == parts[1].strip().lower():
                 token = f"/stutter:{parts[0]}-{parts[1]}/"
                 events.append({"type": "stutter", "word_idx": i, "token": token})
-        # also detect short repeated letters like "t t" (rare)
     return events
 
 
@@ -149,10 +147,13 @@ def assign_pause_to_nearest_word(alignment_rows, pause_start, pause_duration):
         s = r.get("start")
         if s is None:
             continue
-        if s <= pause_start:
-            idx = i
-        else:
-            break
+        try:
+            if float(s) <= float(pause_start):
+                idx = i
+            else:
+                break
+        except Exception:
+            continue
     insert_after = idx if idx is not None else 0
     token = f"/pause_{pause_duration:.2f}s/"
     return {"type": "pause", "start": pause_start, "duration": pause_duration, "token": token, "insert_after_word_idx": insert_after}
@@ -169,7 +170,7 @@ def main():
     align_path = Path(args.align)
     vad_path = Path(args.vad) if args.vad else None
     prosody_path = Path(args.prosody) if args.prosody else None
-    out_path = Path(args.out) if args.out else Path("data/annotated") / (Path(args.align).stem.replace("_words","") + "_events.json")
+    out_path = Path(args.out) if args.out else Path("data/annotated") / (Path(args.align).stem.replace("_words", "") + "_events.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     alignment_rows = load_alignment(align_path)
@@ -193,13 +194,40 @@ def main():
     # tremor from prosody
     events += detect_tremor_from_prosody(prosody_map, jitter_thresh=0.015)
 
-    # sort events in approximate order (pauses by start -> others by word_idx)
+    # --- stable sort: produce a numeric key for each event so comparisons are safe ---
     def sort_key(e):
+        """
+        Return a tuple (time, priority) to sort events.
+        - pauses: use their explicit start time (or +inf if missing), priority 0 (comes first among same-time events)
+        - other events: use alignment_rows[word_idx].start if available, otherwise +inf
+        """
+        # Pause events: sort by their absolute start
         if e.get("type") == "pause":
-            return (e.get("start", 0.0), 0)
-        return (alignment_rows[e.get("word_idx", 0)].get("start") if e.get("word_idx", None) is not None and alignment_rows else 0.0, 1)
+            start = e.get("start")
+            try:
+                start_val = float(start) if start is not None else float("inf")
+            except Exception:
+                start_val = float("inf")
+            return (start_val, 0)
+
+        # Non-pause events: find the start time of the referenced word (if any)
+        word_idx = e.get("word_idx", None)
+        start_val = float("inf")
+        if word_idx is not None:
+            try:
+                wi = int(word_idx)
+                if 0 <= wi < len(alignment_rows):
+                    s = alignment_rows[wi].get("start")
+                    if s is not None and str(s).lower() != "nan":
+                        start_val = float(s)
+            except Exception:
+                start_val = float("inf")
+        # priority 1 for non-pause events (after pause if same timestamp)
+        return (start_val, 1)
+
     events_sorted = sorted(events, key=sort_key)
 
+    # Write out
     out_path.write_text(json.dumps(events_sorted, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Wrote events to {out_path} (count={len(events_sorted)})")
 

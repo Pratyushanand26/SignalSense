@@ -13,7 +13,7 @@ AUDIO_DIR=$(dirname "$INPUT")
 WAV_PATH="${AUDIO_DIR}/${BASE}_conv.wav"
 
 # Ensure output dirs
-mkdir -p data/transcripts_raw data/vad data/alignments data/prosody data/annotated
+mkdir -p data/transcripts_raw data/vad data/alignments data/prosody data/annotated data/ml_ready
 
 echo ">>> [0] Convert to WAV (if needed) -> $WAV_PATH"
 ./scripts/convert_to_wav.sh --input "$INPUT" --out "$WAV_PATH" --sr 16000 --channels 1
@@ -26,7 +26,6 @@ TRANSCRIPT_TXT="data/transcripts_raw/${BASE}_text.txt"
 if [[ ! -f "$TRANSCRIPT_TXT" ]]; then
   echo "Transcript text not found. Building fallback from words CSV..."
   if [[ -f "data/transcripts_raw/${BASE}_words.csv" ]]; then
-    # extract first column (word), skip header, join with spaces
     tail -n +2 "data/transcripts_raw/${BASE}_words.csv" | awk -F, '{print $1}' | tr '\n' ' ' | sed 's/  */ /g' > "$TRANSCRIPT_TXT"
     echo "" >> "$TRANSCRIPT_TXT"
     echo "Wrote fallback transcript: $TRANSCRIPT_TXT"
@@ -70,6 +69,7 @@ fi
 echo ">>> [4] Forced alignment (Gentle) -> data/alignments/${BASE}_words.csv"
 python src/03_forced_align.py --audio "$WAV_PATH" --transcript "$TRANSCRIPT_TXT" --out_json "data/alignments/${BASE}_gentle.json" --out_csv "data/alignments/${BASE}_words.csv"
 
+# This step now uses your original 04_prosody.py file
 echo ">>> [5] Prosody extraction -> data/prosody/${BASE}_prosody.csv"
 python src/04_prosody.py --audio "$WAV_PATH" --align "data/alignments/${BASE}_words.csv" --out "data/prosody/${BASE}_prosody.csv"
 
@@ -79,9 +79,13 @@ python src/05_disfluency.py --align "data/alignments/${BASE}_words.csv" --vad "d
 echo ">>> [7] Merge annotations -> data/annotated/${BASE}_annotated.txt"
 python src/06_merger.py --align "data/alignments/${BASE}_words.csv" --prosody "data/prosody/${BASE}_prosody.csv" --vad "data/vad/${BASE}_vad.csv" --events "data/annotated/${BASE}_events.json" --out "data/annotated/${BASE}_annotated.txt"
 
-echo ">>> [8] Create ML-ready 5-line file -> data/annotated/${BASE}_ml_5lines.txt"
-python src/07_ml_prep_split.py --annot "data/annotated/${BASE}_annotated.txt" --align "data/alignments/${BASE}_words.csv" --out "data/annotated/${BASE}_ml_5lines.txt" --n 5
+# This is the final step where the 5-line text is created
+echo ">>> [8] Create ML-ready 5-line file -> data/ml_ready/${BASE}_ml_5lines.txt"
+python src/07_ml_prep_split.py --annot "data/annotated/${BASE}_annotated.txt" --align "data/alignments/${BASE}_words.csv" --out "data/ml_ready/${BASE}_ml_5lines.txt" --n 5
+
+# This is the new step you requested. It appends the data to the CSV.
+echo ">>> [9] Appending data to CSV..."
+python src/08_create_csv.py --audio_path "$INPUT" --txt_path "data/ml_ready/${BASE}_ml_5lines.txt" --prosody_path "data/prosody/${BASE}_prosody.csv" --output_csv "data/processed_data.csv"
 
 echo ""
-echo "✅ Pipeline finished."
-echo "Final ML-ready file: data/annotated/${BASE}_ml_5lines.txt"
+echo "✅ Pipeline finished. Data appended to: data/processed_data.csv"
