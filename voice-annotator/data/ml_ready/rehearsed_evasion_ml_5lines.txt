@@ -1,5 +1,0 @@
-[001.18] as /pause_0.18s/ /tremor/ i always say /tremor/ /pause_0.21s/ i /tremor/ handle /tremor/ the full /tremor/ life cycle /pause_0.39s/ you /tremor/ know that
-line /tremor/ right /pause_0.30s/ i design /tremor/ i implement /tremor/ i ship /pause_0.33s/ well /tremor/ /pause_0.33s/ i /tremor/ help design /tremor/ /pause_0.27s/
-i implement /tremor/ certain /tremor/ components /tremor/ /pause_0.48s/ and /tremor/ i /tremor/ ship some features /tremor/ /pause_0.42s/ /pause_0.27s/ /pause_0.24s/
-the /tremor/ life cycle /tremor/ is /tremor/ a /tremor/ team /tremor/ thing /pause_0.27s/ so when i say /tremor/ /pause_0.18s/ i /tremor/ handled /tremor/ it /tremor/
-i mean /tremor/ /pause_0.30s/ i /tremor/ handled /tremor/ part of it /pause_0.75s/ it's /tremor/ cleaner /tremor/ to tell it like that /tremor/ /pause_0.18s/

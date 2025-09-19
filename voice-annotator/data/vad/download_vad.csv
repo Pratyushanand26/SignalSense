@@ -1,8 +1,0 @@
-start,end,is_speech
-0.0,0.24,False
-0.24,1.17,True
-1.17,1.2,False
-1.2,2.52,True
-2.52,2.58,False
-2.58,4.11,True
-4.11,4.23,False
